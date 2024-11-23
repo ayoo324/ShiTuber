@@ -4,18 +4,25 @@ import os
 import sys
 os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
 pygame.init()
-pygame.display.set_mode((800, 800), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
+pygame.display.set_mode((1600, 900), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
 
 scene = Scene()
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        scene.handleEvent(event)
-
-    scene.render()
-
-    pygame.display.flip()
     
+def __main__():
+    runGameLoop()
+
+def runGameLoop():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            scene.handleEvent(event)
+
+        scene.render()
+
+        pygame.display.flip()
+        
+
+__main__()

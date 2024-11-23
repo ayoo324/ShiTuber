@@ -10,7 +10,7 @@ class Displayable:
     r = 1.0
     g = 0.0
     b = 0.0
-    scale = 0.2
+    scale = 1.
     uuid = uuid.uuid4()
     def __init__(self, program, texture, geometry):
         
@@ -23,4 +23,4 @@ class Displayable:
         self.y = y
         self.z = z
     async def render(self):
-        self.mesh.render((self.x, self.y, self.z), (self.r, self.g, self.b), self.scale)
+        return await self.mesh.render((self.x, self.y, self.z), (self.r, self.g, self.b), self.scale)

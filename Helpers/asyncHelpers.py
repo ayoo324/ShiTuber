@@ -1,6 +1,6 @@
 import asyncio
 
-def execute_multiple_calls(coros_or_futures):
+def execute_multiple_calls(*coros_or_futures):
     # Create an event loop to allow for parallel async calls
     loop = asyncio.new_event_loop()
     # Set our async event loop
