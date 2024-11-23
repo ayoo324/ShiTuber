@@ -2,7 +2,7 @@ import moderngl
 import pygame
 import math
 import glm
-from GLClasses.Overlay import Overlay
+from Overlay.Overlay import Overlay
 from Displayable.Displayable import Displayable
 from Helpers.asyncHelpers import execute_multiple_calls
 from Helpers.glmHelpers import getRotationMatrices
