@@ -46,7 +46,7 @@ class DOM():
     def render(self):
         self.draw.rectangle((0, 0, *self.img.size), fill=(0, 0, 0, 0))
         for component in self.idMap.values():
-            self.img.paste(component.render(), (component.pos[0], component.pos[1]))
+            self.img.paste(component.render(), component.pos)
 
         self.texture.write(self.img.tobytes())
         self.ctx.enable_only(self.ctx.BLEND)
