@@ -4,8 +4,9 @@ import pygame
 from uuid import uuid4
 from Helpers.asyncHelpers import execute_multiple_calls
 from Overlay.DOM import DOM
-from Overlay.Components import TextDisplay, Input, Picture
+from Overlay.Components import TextDisplay, Input, Picture, Rectangle
 import io
+
 class Overlay:
     def __init__(self):
         self.dom = DOM()
@@ -21,6 +22,11 @@ class Overlay:
         for component in self.head.getDebugInputs( (250, 0) ):
             self.dom.addComponent(component)
 
+        self.audioBar = Rectangle('Audio', (0, 400), (20, 0))
+
+        self.dom.addComponent(self.audioBar)
+
+
     def render(self):
 
         self.dom.render()
@@ -34,3 +40,7 @@ class Overlay:
 
     def handleKey(self, key):
         self.dom.focus.press(key)
+
+    def handleAudioData(self, data):
+        sum_of_data = sum(data) / 1000
+        self.audioBar.dimensions = (20, int(abs(sum_of_data)))

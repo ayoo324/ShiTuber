@@ -18,14 +18,25 @@ class Scene:
         self.ctx = moderngl.get_context()
         self.clear_colors = (0.2, 0.0, 0.2, 0.5, 0)
         self.overlay = Overlay()
+        self.audioBuffer = []
         pygame.event.set_grab(self.grabMouse)
 
     def addDisplayableToScene(self, displayable):
         self.displayables[displayable.uuid] = displayable
 
+    def addAudioData(self, data):
+        self.audioBuffer.append(data)
+
+    def handleAudioData(self):
+        if len(self.audioBuffer) > 0:
+            lastAudioData = self.audioBuffer.pop(0)
+            self.overlay.handleAudioData(lastAudioData)
+            self.audioBuffer = self.audioBuffer[:5]
+
     def render(self):
         self.clock.tick()
 
+        self.handleAudioData()
         self.handleDownKeys()
         if self.grabMouse:
             self.checkMouseMovement()

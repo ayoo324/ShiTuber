@@ -5,6 +5,7 @@ class Component:
     fill = '#FFF'
     value = ''
     label = ''
+    image = None
     def __init__(self, label, pos, dimensions):
         self.pos = pos
         self.label = label
@@ -115,6 +116,17 @@ class Picture(Component):
         self.identifier = uuid4()
 
     def init_image(self):
-        if not self.image:
+        if self.image is None:
             self.image = Image.open(self.value)
         
+class Rectangle(Component):
+    def init_image(self):
+        self.image = Image.new("RGBA", self.dimensions, color=(1, 1, 1))
+    def render(self):
+        self.init_image()
+        pen = ImageDraw.Draw(self.image)
+        pen.rectangle((0, 0, self.dimensions[0], self.dimensions[1]))
+        return self.image.resize(self.dimensions)
+
+
+    
