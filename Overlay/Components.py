@@ -115,5 +115,6 @@ class Picture(Component):
         self.identifier = uuid4()
 
     def init_image(self):
-        self.image = Image.open(self.value)
+        if not self.image:
+            self.image = Image.open(self.value)
         
