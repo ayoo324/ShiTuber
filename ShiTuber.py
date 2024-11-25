@@ -13,7 +13,7 @@ scene = Scene()
 
 """Simple Non Blocking Stream PyAudio"""
 
-CHUNK = 1024  # Samples: 1024,  512, 256, 128 frames per buffer
+CHUNK = 128  # Samples: 1024,  512, 256, 128 frames per buffer
 RATE = 44100  # Equivalent to Human Hearing at 40 kHz
 
 p = pyaudio.PyAudio()
