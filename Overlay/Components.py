@@ -109,16 +109,17 @@ class Input(TextDisplay):
 
 class Picture(Component):
     def __init__(self, pos, dimensions, imagePath):
+        super().__init__('', pos, dimensions)
         self.hide_label = True
-        self.pos = pos
-        self.dimensions = dimensions
         self.value = imagePath
-        self.identifier = uuid4()
 
     def init_image(self):
         if self.image is None:
             self.image = Image.open(self.value)
-        
+
+    def getDebugInputs(self, offsets):      
+        return super().getDebugInputs(offsets)
+
 class Rectangle(Component):
     def init_image(self):
         self.image = Image.new("RGBA", self.dimensions, color=(1, 1, 1))

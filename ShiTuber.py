@@ -10,11 +10,7 @@ pygame.init()
 pygame.display.set_mode((1600, 900), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
 
 scene = Scene()
-
-"""Simple Non Blocking Stream PyAudio"""
-
-CHUNK = 128  # Samples: 1024,  512, 256, 128 frames per buffer
-RATE = 44100  # Equivalent to Human Hearing at 40 kHz
+from Overlay.Overlay import CHUNK, RATE, CHANNELS
 
 p = pyaudio.PyAudio()
 
@@ -26,7 +22,7 @@ def callback(in_data, frame_count, time_info, status):
 
 # Notice the extra stream callback...
 stream = p.open(format=pyaudio.paInt16,
-                channels=1,
+                channels=CHANNELS,
                 rate=RATE,
                 input=True,
                 frames_per_buffer=CHUNK,
