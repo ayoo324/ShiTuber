@@ -16,7 +16,7 @@ p = pyaudio.PyAudio()
 
 def callback(in_data, frame_count, time_info, status):
     # print(in_data)
-    data = np.fromstring(in_data, dtype=np.int16)
+    data = np.frombuffer(in_data, dtype=np.int16)
     scene.addAudioData(data)
     return (in_data, pyaudio.paContinue)
 
