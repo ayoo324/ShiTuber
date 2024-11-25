@@ -16,7 +16,8 @@ class Scene:
         self.fps = 0.0
         self.clock = pygame.time.Clock()
         self.ctx = moderngl.get_context()
-        self.overlay = Overlay(pygame.display.get_window_size())
+        self.clear_colors = (0.2, 0.0, 0.2, 0.5, 0)
+        self.overlay = Overlay()
         pygame.event.set_grab(self.grabMouse)
 
     def addDisplayableToScene(self, displayable):
@@ -29,7 +30,13 @@ class Scene:
         if self.grabMouse:
             self.checkMouseMovement()
 
-        self.ctx.clear()
+        self.ctx.clear(
+            self.clear_colors[0],
+            self.clear_colors[1], 
+            self.clear_colors[2], 
+            self.clear_colors[3], 
+            self.clear_colors[4]
+        )
         self.ctx.screen.use()
         self.overlay.render()
 

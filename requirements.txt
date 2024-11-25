@@ -1,5 +1,5 @@
 pip install moderngl-window
-pip install -U pygame==2.6.0
+pip install -U pygame==2.6.1
 pip install --upgrade Pillow
 pip install objloader
 pip install PyGLM

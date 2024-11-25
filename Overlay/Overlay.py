@@ -4,28 +4,27 @@ import pygame
 from uuid import uuid4
 from Helpers.asyncHelpers import execute_multiple_calls
 from Overlay.DOM import DOM
-from Overlay.Components import TextDisplay, Input
+from Overlay.Components import TextDisplay, Input, Picture
+import io
 class Overlay:
-    def __init__(self, size):
-        self.dom = DOM(size)
+    def __init__(self):
+        self.dom = DOM()
 
-        testTextDisplay = TextDisplay()
+        testTextDisplay = TextDisplay((0, 0), (100, 30))
         testTextDisplay.text='Test'
-        testTextDisplay.x=0
-        testTextDisplay.y=0
-        testTextDisplay.width=100
-        testTextDisplay.height=30
         testTextDisplay.fill='#F0F'
         self.dom.addComponent(testTextDisplay)
 
-        testTextInputDisplay = Input()
+        testTextInputDisplay = Input((30, 30), (100, 30))
         testTextInputDisplay.text='Input'
-        testTextInputDisplay.x=30
-        testTextInputDisplay.y=30
-        testTextInputDisplay.width=100
-        testTextInputDisplay.height=30
 
         self.dom.addComponent(testTextInputDisplay)
+
+        base = Picture((900, 800), (500, 500), "Images/base.png")
+        self.dom.addComponent(base)
+
+        head = Picture((900, 300), (100, 100), "Images/head.png")
+        self.dom.addComponent(head)
 
     def render(self):
         self.dom.render()

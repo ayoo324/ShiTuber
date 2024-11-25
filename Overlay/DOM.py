@@ -3,12 +3,11 @@ import moderngl
 import pygame
 from uuid import uuid4
 class DOM():
-    def __init__(self, canvas_size):
+    def __init__(self):
         self.ctx = moderngl.get_context()
-        self.img = Image.new('RGBA', canvas_size)
+        self.img = Image.new('RGBA', pygame.display.get_window_size())
         self.draw = ImageDraw.Draw(self.img)
-        self.draw.font = ImageFont.truetype('fonts/OpenSans-Medium.ttf', 20)
-        self.texture = self.ctx.texture(canvas_size, 4)
+        self.texture = self.ctx.texture(pygame.display.get_window_size(), 4)
         self.program = self.ctx.program(
             vertex_shader='''
                 #version 330 core
@@ -40,16 +39,14 @@ class DOM():
         self.sampler = self.ctx.sampler(texture=self.texture)
         self.vao = self.ctx.vertex_array(self.program, [])
         self.vao.vertices = 3
-        self.canvas_size = canvas_size
         self.canvas_map = {}
         self.idMap = {}
         self.focus = None
 
     def render(self):
         self.draw.rectangle((0, 0, *self.img.size), fill=(0, 0, 0, 0))
-        
         for component in self.idMap.values():
-            component.render(self.draw)
+            self.img.paste(component.render(), (component.pos[0], component.pos[1]))
 
         self.texture.write(self.img.tobytes())
         self.ctx.enable_only(self.ctx.BLEND)
@@ -57,16 +54,16 @@ class DOM():
         self.vao.render()
     
     def addComponent(self, component):
-        for curX in range(component.x, component.x + component.width):
+        for curX in range(component.pos[0], component.pos[0] + component.dimensions[0]):
             if curX not in self.canvas_map:
                 self.canvas_map[curX] = {}
-            for curY in range(component.y, component.y + component.height):
+            for curY in range(component.pos[1], component.pos[1] + component.dimensions[1]):
                 self.canvas_map[curX][curY] = component.identifier
         self.idMap[component.identifier] = component
 
     def removeComponent(self, component):
-        for curX in range(component.x, component.x + component.width):
-            for curY in range(component.y, component.y + component.height):
+        for curX in range(component.pos[0], component.pos[0] + component.dimensions[0]):
+            for curY in range(component.pos[1], component.pos[1] + component.dimensions[1]):
                 del self.canvas_map[curX][curY]
         del self.idMap[component.identifier]
 
