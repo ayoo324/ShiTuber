@@ -10,23 +10,19 @@ class Overlay:
     def __init__(self):
         self.dom = DOM()
 
-        testTextDisplay = TextDisplay((0, 0), (100, 30))
-        testTextDisplay.text='Test'
-        testTextDisplay.fill='#F0F'
-        self.dom.addComponent(testTextDisplay)
-
-        testTextInputDisplay = Input((30, 30), (100, 30))
-        testTextInputDisplay.text='Input'
-
-        self.dom.addComponent(testTextInputDisplay)
-
-        base = Picture((900, 800), (500, 500), "Images/base.png")
-        self.dom.addComponent(base)
-
-        head = Picture((900, 300), (100, 100), "Images/head.png")
-        self.dom.addComponent(head)
+        self.base = Picture((700, 70), (219, 201), "Images/base.png")
+        self.base.label = 'Base'
+        self.dom.addComponent(self.base)
+        for component in self.base.getDebugInputs( (0, 0) ):
+            self.dom.addComponent(component)
+        self.head = Picture((760, 20), (80, 50), "Images/head.png")
+        self.head.label = 'Head'
+        self.dom.addComponent(self.head)
+        for component in self.head.getDebugInputs( (250, 0) ):
+            self.dom.addComponent(component)
 
     def render(self):
+
         self.dom.render()
 
     def click(self, coordinates):
