@@ -1,17 +1,11 @@
-from PIL import Image, ImageDraw, ImageFont
-import moderngl
-import pygame
-from uuid import uuid4
-from Helpers.asyncHelpers import execute_multiple_calls
 from Overlay.DOM import DOM
-from Overlay.Components import TextDisplay, Input, Picture, Rectangle
-import io
+from Overlay.Components import Picture, Rectangle
 import random
 import time
-CHUNK = 8  # Samples: 1024,  512, 256, 128 frames per buffer
+CHUNK = 128  # Samples: 1024,  512, 256, 128 frames per buffer
 RATE = 44100  # Equivalent to Human Hearing at 40 kHz
 CHANNELS = 1
-AUDIO_THRESHOLD = 50
+AUDIO_THRESHOLD = 150
 MAX_MOVEMENT_X = 20
 MAX_MOVEMENT_Y = 40
 flipCooldown = 0.15
@@ -26,13 +20,13 @@ class Overlay:
             self.dom.addComponent(component)
         self.head = Picture((760, 640), (80, 50), "Images/head.png")
         self.head.label = 'Head'
+        self.head.speed = (3, 3, 5, 5)
+        self.head.decay = (0, 0)
+        self.head.max_pos = (740, 780, 340, 640)
+        self.head.max_velocity = (10, 5)
         self.dom.addComponent(self.head)
         for component in self.head.getDebugInputs( (250, 0) ):
             self.dom.addComponent(component)
-
-        self.audioBar = Rectangle('Audio', (0, 400), (20, 0))
-
-        self.dom.addComponent(self.audioBar)
 
     def render(self):
 
@@ -47,67 +41,32 @@ class Overlay:
 
     def handleKey(self, key):
         self.dom.focus.press(key)
+
+
     sign = -1
     last_average_of_data = 0
-    last_sum = 0
-    horizontal_movement = 0
-    head_speed_up = 5
-    head_speed_down = 3
-    head_speed_horizontal = 3
+    max_average_crawl = 10
     lastFlipTime = time.time()
     def handleAudioData(self, data):
         average_of_data = int(abs(sum(data) / CHUNK))
-        cur_sum = self.last_sum
 
         if average_of_data > AUDIO_THRESHOLD:
-            
-            self.audioBar.dimensions = (20, int(average_of_data))
             if self.last_average_of_data > average_of_data:
-                cur_sum = self.last_sum - self.head_speed_down
-            if self.last_average_of_data < average_of_data:
-                cur_sum = self.last_sum + self.head_speed_up
+                self.head.up()
+                if self.sign >= 0:
+                    self.head.right()
+                else:
+                    self.head.left()
+            elif self.last_average_of_data < average_of_data:
+                self.head.down()
+                self.head.center()
 
             now = time.time()
             if self.lastFlipTime + flipCooldown < now:
                 self.lastFlipTime = now
                 if random.randint(0, 3) == 1:
                     self.sign = self.sign * -1
-
-            self.last_average_of_data = average_of_data
         else:
-            cur_sum = self.last_sum - self.head_speed_down  
-            self.last_average_of_data = cur_sum
-
-
-        if cur_sum < 0:
-            cur_sum = 0
-
-        cur_horizontal_movement = self.horizontal_movement
-        if average_of_data > AUDIO_THRESHOLD:
-
-            if self.sign >= 0:
-                cur_horizontal_movement = cur_horizontal_movement + self.head_speed_horizontal
-            else:
-                cur_horizontal_movement = cur_horizontal_movement - self.head_speed_horizontal
-
-            if cur_horizontal_movement < -MAX_MOVEMENT_X:
-                cur_horizontal_movement = -MAX_MOVEMENT_X
-            if cur_horizontal_movement > MAX_MOVEMENT_X:
-                cur_horizontal_movement = MAX_MOVEMENT_X
-        else:
-            if cur_horizontal_movement < 0:
-                cur_horizontal_movement = cur_horizontal_movement + self.head_speed_horizontal
-                if cur_horizontal_movement > 0:
-                    cur_horizontal_movement = 0
-            else:
-                cur_horizontal_movement = cur_horizontal_movement - self.head_speed_horizontal
-                if cur_horizontal_movement < 0:
-                    cur_horizontal_movement = 0
-
-
-        self.horizontal_movement = min(cur_horizontal_movement, MAX_MOVEMENT_X)
-        moveX = self.horizontal_movement 
-        moveY = min(cur_sum, MAX_MOVEMENT_Y)
-
-        self.last_sum = cur_sum = min(cur_sum, MAX_MOVEMENT_Y)
-        self.head.pos = (760 + int(moveX), max(0, 640 - int(moveY)))
+            self.head.down()
+            self.head.center()
+        self.last_average_of_data = max(self.last_average_of_data + self.max_average_crawl, average_of_data)
