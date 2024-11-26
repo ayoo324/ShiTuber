@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 import moderngl
+from Helpers.asyncHelpers import execute_multiple_calls
 import pygame
 from uuid import uuid4
 class DOM():
@@ -45,14 +46,15 @@ class DOM():
 
     def render(self):
         self.draw.rectangle((0, 0, *self.img.size), fill=(0, 0, 0, 0))
-        for component in self.idMap.values():
-            self.img.paste(component.render(), component.pos)
 
+        for component in execute_multiple_calls(*[component.render() for component in self.idMap.values()]):
+            self.img.paste(component.image, component.pos)
+        
         self.texture.write(self.img.tobytes())
         self.ctx.enable_only(self.ctx.BLEND)
         self.sampler.use()
         self.vao.render()
-    
+
     def addComponent(self, component):
         for curX in range(component.pos[0], component.pos[0] + component.dimensions[0]):
             if curX not in self.canvas_map:

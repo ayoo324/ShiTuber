@@ -10,7 +10,7 @@ class Moveable():
     pos = (0, 0)
     real_pos = (0.0, 0.0)
     return_to_center = True
-    def interpolate(self):
+    async def interpolate(self):
         if self.return_to_center:
             center = ( self.max_pos[0] + self.max_pos[1] ) / 2
             if self.real_pos[0] > center:
@@ -95,12 +95,14 @@ class Component(Moveable):
         pen.text((0, 0), self.label, fill=self.fill)
 
 
-    def render(self):
-        self.interpolate()
+    async def render(self):
+        await self.interpolate()
         self.init_image()
         if not self.hide_label:
             self.create_label()
-        return self.image.resize(self.dimensions)
+        self.image.resize(self.dimensions)
+        return self
+    
     def click(self):
         print(f'clicked: {self.identifier}')
 
@@ -161,13 +163,15 @@ class Component(Moveable):
         ]
 
 class TextDisplay(Component):
-    def render(self):
+    async def render(self):
+        await self.interpolate()
         self.init_image()
         self.create_label()
         pen = ImageDraw.Draw(self.image)
         pen.font = ImageFont.truetype('fonts/OpenSans-Medium.ttf', 20)
         pen.text((0, 20), self.value, fill=self.fill)
-        return self.image.resize(self.dimensions)
+        self.image.resize(self.dimensions)
+        return self
 
 
 class Input(TextDisplay):
@@ -198,11 +202,13 @@ class Picture(Component):
 class Rectangle(Component):
     def init_image(self):
         self.image = Image.new("RGBA", self.dimensions, color=(1, 1, 1))
-    def render(self):
+    async def render(self):
+        await self.interpolate()
         self.init_image()
         pen = ImageDraw.Draw(self.image)
         pen.rectangle((0, 0, self.dimensions[0], self.dimensions[1]))
-        return self.image.resize(self.dimensions)
+        self.image.resize(self.dimensions)
+        return self
 
 
     

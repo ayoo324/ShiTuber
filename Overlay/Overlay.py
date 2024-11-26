@@ -3,7 +3,7 @@ from Overlay.Components import Picture, Rectangle
 import random
 import time
 CHUNK = 128  # Samples: 1024,  512, 256, 128 frames per buffer
-RATE = 44100  # Equivalent to Human Hearing at 40 kHz
+RATES = [38000, 44000, 52000, 36000, 56000, 62000, 64000] 
 CHANNELS = 1
 AUDIO_THRESHOLD = 150
 MAX_MOVEMENT_X = 20
@@ -29,7 +29,6 @@ class Overlay:
             self.dom.addComponent(component)
 
     def render(self):
-
         self.dom.render()
 
     def click(self, coordinates):

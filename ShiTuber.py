@@ -10,7 +10,7 @@ pygame.init()
 pygame.display.set_mode((1600, 900), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
 
 scene = Scene()
-from Overlay.Overlay import CHUNK, RATE, CHANNELS
+from Overlay.Overlay import CHUNK, RATES, CHANNELS
 
 p = pyaudio.PyAudio()
 
@@ -21,14 +21,15 @@ def callback(in_data, frame_count, time_info, status):
     return (in_data, pyaudio.paContinue)
 
 # Notice the extra stream callback...
-stream = p.open(format=pyaudio.paInt16,
+streams = [p.open(format=pyaudio.paInt16,
                 channels=CHANNELS,
-                rate=RATE,
+                rate=rate,
                 input=True,
                 frames_per_buffer=CHUNK,
-                stream_callback=callback)
-
-stream.start_stream()
+                stream_callback=callback) for rate in RATES
+            ]
+for stream in streams:
+    stream.start_stream()
 
 
 def __main__():
