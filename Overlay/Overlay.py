@@ -2,10 +2,7 @@ from Overlay.DOM import DOM
 from Overlay.Components import Picture, Rectangle
 import random
 import time
-CHUNK = 8  # Samples: 1024,  512, 256, 128 frames per buffer
-RATES = [38000, 44000, 64000] 
-CHANNELS = 1
-AUDIO_THRESHOLD = 150
+from AudioSettings import *
 MAX_MOVEMENT_X = 20
 MAX_MOVEMENT_Y = 40
 flipCooldown = 0.15

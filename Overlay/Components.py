@@ -177,10 +177,10 @@ class TextDisplay(Component):
 class Input(TextDisplay):
     fill = '#FFF'
     def press(self, key):
-        if key.key == pygame.K_BACKSPACE:
+        if key['key'] == pygame.K_BACKSPACE:
             self.value = self.value[:-1]
         else:
-            self.value += key.unicode
+            self.value += key['unicode']
         try:
             self.onEdit()
         except Exception:

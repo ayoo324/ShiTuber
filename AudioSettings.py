@@ -1,0 +1,5 @@
+
+CHUNK = 32  # Samples: 1024,  512, 256, 128 frames per buffer
+RATES = [38000, 44000, 64000] 
+CHANNELS = 1
+AUDIO_THRESHOLD = 5

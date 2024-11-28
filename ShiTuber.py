@@ -1,51 +1,43 @@
 from GLClasses.Scene import Scene
-import pygame
+from Displayable.LogicalScene import LogicalScene
 import os
-import sys
-import pyaudio
-import time
-import numpy as np
-os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
-pygame.init()
-pygame.display.set_mode((1600, 900), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
-
-scene = Scene()
-from Overlay.Overlay import CHUNK, RATES, CHANNELS
-
-p = pyaudio.PyAudio()
-
-def callback(in_data, frame_count, time_info, status):
-    # print(in_data)
-    data = np.frombuffer(in_data, dtype=np.int16)
-    scene.addAudioData(data)
-    return (in_data, pyaudio.paContinue)
-
-# Notice the extra stream callback...
-streams = [p.open(format=pyaudio.paInt16,
-                channels=CHANNELS,
-                rate=rate,
-                input=True,
-                frames_per_buffer=CHUNK,
-                stream_callback=callback) for rate in RATES
-            ]
-for stream in streams:
-    stream.start_stream()
+from multiprocessing import Manager, Process, Queue
+from queue import Full
+import pygame
+from GameLoop import runGameLoop
+def renderLoop(scene):
+    while True:     
+        try:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return True
+                scene.logic_scene.addToInputEventQueue(event)
+            scene.render()
+            pygame.display.flip()
+        except Full:
+            print('falling behind input queue, inputs lost')
 
 
-def __main__():
-    runGameLoop()
+if __name__ == '__main__':
+    with Manager() as manager:
+        logic_scene = LogicalScene()
+        shared_dictionary = manager.dict() 
+        shared_dictionary['scene'] = logic_scene
+        render_map = manager.dict()
+        input_queue = manager.Queue(100)
+        audio_queue = manager.Queue(10)
+        logic_scene.setInputQueue(input_queue)
+        logic_scene.setAudioQueue(audio_queue)
+        logic_scene.setRenderMap(render_map)
+        p = Process(target=runGameLoop, args=(shared_dictionary, input_queue, audio_queue, render_map))
 
-def runGameLoop():
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            scene.handleEvent(event)
+        os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
+        pygame.init()
+        pygame.display.set_mode((1600, 900), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
+        scene = Scene(logic_scene)
 
-        scene.render()
 
-        pygame.display.flip()
-        
-
-__main__()
+        p.start()
+        renderLoop(scene)
+        p.terminate()
