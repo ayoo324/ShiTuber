@@ -1,4 +1,5 @@
 import pygame
+from Renderable.Renderable import Renderable
 class LogicalScene:
     displayables = {}
     actionMap = {}
@@ -7,12 +8,17 @@ class LogicalScene:
     focus = None
     lastAudioData = []
     input_queue = None
-    audio_queue = None
     render_map = None
+    render_queue = None
     def setInputQueue(self, input_queue):
         self.input_queue = input_queue
     def setRenderMap(self, render_map):
         self.render_map = render_map
+    def setRenderQueue(self, render_queue):
+        self.render_queue = render_queue
+
+    def submitToRenderQueue(self, mapped_object:Renderable):
+        self.render_queue.put(mapped_object)
     
     def addDisplayableToScene(self, displayable):
         self.displayables[displayable.uuid] = displayable
@@ -54,7 +60,6 @@ class LogicalScene:
                     pygame.quit()
                     return True
             else:
-
                 if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                     transformedEvents.append({'type': event.type, 'key': event.key, 'unicode': event.unicode})
                 if event.type == pygame.MOUSEBUTTONDOWN:

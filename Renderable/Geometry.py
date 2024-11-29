@@ -1,6 +1,6 @@
 import moderngl
 from objloader import Obj
-class ModelGeometry:
+class Geometry:
     def __init__(self, path):
         self.ctx = moderngl.get_context()
 

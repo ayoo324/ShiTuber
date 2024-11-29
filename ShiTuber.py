@@ -1,8 +1,8 @@
 from Scene.Scene import Scene
 from Scene.LogicalScene import LogicalScene
 import os
-from multiprocessing import Manager, Process, Queue
-from queue import Full, Queue
+from multiprocessing import Manager, Process
+from queue import Full
 import numpy as np 
 import pygame
 from AudioSettings import *
@@ -26,8 +26,10 @@ if __name__ == '__main__':
         shared_dictionary['scene'] = logic_scene
         render_map = manager.dict()
         input_queue = manager.Queue(100)
+        render_queue = manager.Queue(100)
         logic_scene.setInputQueue(input_queue)
         logic_scene.setRenderMap(render_map)
+        logic_scene.setRenderQueue(render_queue)
         
         def audio_callback(in_data, frame_count, time_info, status):
             data = np.frombuffer(in_data, dtype=np.int16)
@@ -44,7 +46,7 @@ if __name__ == '__main__':
                         stream_callback=audio_callback) for rate in RATES
                     ]
         
-        p = Process(target=runGameLoop, args=(shared_dictionary, input_queue, render_map))
+        p = Process(target=runGameLoop, args=(shared_dictionary, input_queue, render_map, render_queue))
 
         os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
         pygame.init()

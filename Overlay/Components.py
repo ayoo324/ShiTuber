@@ -100,7 +100,7 @@ class Component(Moveable):
         self.init_image()
         if not self.hide_label:
             self.create_label()
-        self.image.resize(self.dimensions)
+        # self.image.resize(self.dimensions)
         return self
     
     def click(self):
