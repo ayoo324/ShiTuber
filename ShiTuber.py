@@ -18,6 +18,8 @@ def renderLoop(scene):
             pygame.display.flip()
         except Full:
             print('falling behind input queue, inputs lost')
+        except Exception as e:
+            print(e)
 
 if __name__ == '__main__':
     with Manager() as manager:
