@@ -11,8 +11,6 @@ class LogicalScene:
     render_map = None
     def setInputQueue(self, input_queue):
         self.input_queue = input_queue
-    def setAudioQueue(self, audio_queue):
-        self.audio_queue = audio_queue
     def setRenderMap(self, render_map):
         self.render_map = render_map
     
@@ -20,7 +18,7 @@ class LogicalScene:
         self.displayables[displayable.uuid] = displayable
 
     def addAudioData(self, data):
-        self.audio_queue.put(data)
+        self.audioBuffer.append(data)
 
     def tick(self):
         self.handleDownKeys()
@@ -45,29 +43,40 @@ class LogicalScene:
 
 
     def handleAudioData(self):
-        if not self.audio_queue.empty():
-            self.lastAudioData = self.audio_queue.get()
+        if len(self.audioBuffer) > 0:
+            self.lastAudioData = self.audioBuffer.pop(0)
+            self.audioBuffer = self.audioBuffer[:5]
 
-    def addToInputEventQueue(self, event):
-        if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-            self.input_queue.put({'type': event.type, 'key': event.key, 'unicode': event.unicode})
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            self.input_queue.put({'type': event.type, 'pos': pygame.mouse.get_pos()})
-
-    def handleEvent(self, event):
-        if event['type'] == pygame.KEYDOWN:
-            if event['key'] == pygame.K_LSHIFT:
-                self.grabMouse = not self.grabMouse
-                pygame.event.set_grab(self.grabMouse)
+    def addToInputEventQueue(self, events):
+        transformedEvents = []
+        for event in events:
+            if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return True
             else:
-                self.actionMap[event['key']] = event
-        elif event['type'] == pygame.KEYUP:
-            self.actionMap[event['key']] = False
-        elif event['type'] == pygame.MOUSEBUTTONDOWN:
-            self.actionMap['last_click'] = event['pos']
+
+                if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+                    transformedEvents.append({'type': event.type, 'key': event.key, 'unicode': event.unicode})
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    transformedEvents.append({'type': event.type, 'pos': pygame.mouse.get_pos()})
+        self.input_queue.put(transformedEvents)
+        return False
+    
+    def handleEvents(self, events):
+        for event in events:
+            if event['type'] == pygame.KEYDOWN:
+                if event['key'] == pygame.K_LSHIFT:
+                    self.grabMouse = not self.grabMouse
+                    pygame.event.set_grab(self.grabMouse)
+                else:
+                    self.actionMap[event['key']] = event
+            elif event['type'] == pygame.KEYUP:
+                self.actionMap[event['key']] = False
+            elif event['type'] == pygame.MOUSEBUTTONDOWN:
+                self.actionMap['last_click'] = event['pos']
     
     def fillActionMap(self):
         for i in range(0, 100):
             if self.input_queue.empty():
                 break
-            self.handleEvent(self.input_queue.get())
+            self.handleEvents(self.input_queue.get())
