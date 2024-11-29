@@ -1,5 +1,5 @@
-from GLClasses.Scene import Scene
-from Displayable.LogicalScene import LogicalScene
+from Scene.Scene import Scene
+from Scene.LogicalScene import LogicalScene
 import os
 from multiprocessing import Manager, Process, Queue
 from queue import Full, Queue

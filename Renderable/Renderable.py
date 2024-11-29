@@ -1,8 +1,8 @@
-from GLClasses.ImageTexture import ImageTexture
-from GLClasses.Mesh import Mesh
-from GLClasses.ModelGeometry import ModelGeometry
+from Renderable.ImageTexture import ImageTexture
+from Renderable.Mesh import Mesh
+from Renderable.ModelGeometry import ModelGeometry
 import uuid
-class Displayable:
+class Renderable:
     mesh = None
     x = 0
     y = 0
@@ -18,7 +18,7 @@ class Displayable:
         self.cube_geometry = ModelGeometry(geometry)
         self.program = program
         self.mesh = Mesh(program, self.cube_geometry, self.textureForBase)
-    def move_to(x, y, z):
+    def move_to(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
