@@ -42,7 +42,7 @@ class Scene:
             render_object = self.logic_scene.render_queue.get()
             self.load(Renderable(render_object))
     def camera_matrix(self):
-        eye = (0.0, 0.0, 2.0)
+        eye = (0.0, 0.0, -2.0)
         proj = glm.perspective(45.0, 1.0, 0.1, 1000.0)
         look = glm.lookAt(eye, (0.0, 0.0, 0.0), (0.0, -1.0, 0.0))
         return proj * look           
@@ -55,7 +55,8 @@ class Scene:
         else:
             self.render_map[render_object.mapped_object.id].mapped_object = render_object.mapped_object
     previous_data = 0.0
-    max_reduction = 50.0
+    max_reduction = 150.0
+    max_audio = 150000
     def render(self):
         self.load_render_queue()
 
@@ -65,18 +66,18 @@ class Scene:
         audio_data = self.logic_scene.lastAudioData.value
         if self.previous_data > audio_data:
             audio_data = self.previous_data - self.max_reduction
-
+        if audio_data > self.max_audio:
+           audio_data = self.max_audio
         self.program['camera'].write(self.camera_matrix())
         ms = self.clock.tick()
         # self.program['time_since_last_frame'] = ms
 
         for id in self.render_array:
             if id == 1:
-                self.program['audio_data'] = audio_data + 1
+                self.program['audio_data'] = audio_data
                 # self.program['previous_audio'] = self.previous_data + 1
                 self.render_map[id].render()
-                self.program['audio_data'] = 0.0
-                # self.program['previous_audio'] = 0.0
+                self.program['audio_data'] = 0
             else:
                 self.render_map[id].render()
 
