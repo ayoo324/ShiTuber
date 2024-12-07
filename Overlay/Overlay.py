@@ -42,7 +42,7 @@ class Overlay:
         self.time_since_last_frame = TextDisplay('MS', (0, 80), (250, 80))
         self.domRenderer.addComponent(self.time_since_last_frame)
 
-        self.audio_bar = Rectangle('Audio Levels', (0, 260), (40, 10))
+        self.audio_bar = Rectangle('Audio Levels', (0, 260), (40, 10), color=(38, 40, 255))
         self.domRenderer.addComponent(self.audio_bar)
 
 

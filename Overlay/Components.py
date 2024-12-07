@@ -188,8 +188,11 @@ class Picture(Component):
         return super().getDebugInputs(offsets)
 
 class Rectangle(Component):
+    def __init__(self, label, pos, dimensions, color = (1, 1, 1)):
+        super().__init__(label, pos, dimensions)
+        self.color = color
     def init_image(self):
-        self.image = Image.new("RGBA", self.dimensions(), color=(1, 1, 1))
+        self.image = Image.new("RGBA", self.dimensions(), color=self.color)
     async def render(self):
         await self.base.interpolate()
         self.init_image()

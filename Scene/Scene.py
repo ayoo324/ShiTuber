@@ -55,8 +55,9 @@ class Scene:
         else:
             self.render_map[render_object.mapped_object.id].mapped_object = render_object.mapped_object
     previous_data = 0.0
-    max_reduction = 150.0
+    max_reduction = 350.0
     max_audio = 150000
+    threshold = 1200
     def render(self):
         self.load_render_queue()
 
@@ -84,6 +85,7 @@ class Scene:
         self.previous_data = audio_data
         self.overlay.audio_level.value = str((audio_data + 1))
         self.overlay.time_since_last_frame.value = str(ms)
-        self.overlay.audio_bar.base.height = int((audio_data + 1))
+        self.overlay.audio_bar.base.height = int(((audio_data) / (self.max_audio))  * 1000)
+        # print(self.overlay.audio_bar.base.height)
         self.overlay.render()
         self.ctx.screen.use()
