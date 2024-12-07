@@ -1,11 +1,11 @@
 import moderngl
 import pygame
-from Overlay.Overlay import Overlay
 from Renderable.Geometry import Geometry
 from Renderable.ImageTexture import ImageTexture
+from Renderable.Renderable import Renderable
 from concurrent.futures import *
-import multiprocessing as mp
-from ctypes import *
+import glm
+import math
 class Scene:
     depth = 1000.0
     render_map = {}
@@ -14,64 +14,54 @@ class Scene:
         self.fps = 0.0
         self.clock = pygame.time.Clock()
         self.ctx = moderngl.get_context()
-        self.clear_colors = (0.2, 0.0, 0.2, 0.5, 0)
-        self.overlay = Overlay()
+        self.screen = self.ctx.texture(pygame.display.get_window_size(), 4)
+        self.depth = self.ctx.depth_texture(pygame.display.get_window_size())
+
+        v1 = open('shaders/vertex.glsl')
+        f1 = open('shaders/fragment.glsl')
         self.programs = [self.ctx.program(
-            open('shaders/vertex.glsl').read(),
-            open('shaders/fragment.glsl').read()
+            v1.read(),
+            f1.read()
         )]
+        v1.close()
+        f1.close()
         self.geoemtries = [
             Geometry('models/cube.obj')
         ]
         self.textures = [
+            ImageTexture('images/head.png'),
             ImageTexture('images/base.png')
         ]
-        self.executor = ThreadPoolExecutor(max_workers=4)
-        # self.render_array = mp.Array(0, lock=False)
         self.render_array = []
+
     def load_render_queue(self):
         if not self.logic_scene.render_queue.empty():
             render_object = self.logic_scene.render_queue.get()
-            # self.executor.submit(self.load, render_object)
-            self.load(render_object)
-            
+            self.load(Renderable(render_object))
+    def camera_matrix(self):
+        eye = (0.0, 0.0, -2.0)
+        proj = glm.perspective(45.0, 1.0, 0.1, 1000.0)
+        look = glm.lookAt(eye, (0.0, 0.0, 0.0), (0.0, 1.0, 0.0))
+        return proj * look           
 
     def load(self, render_object):
-        render_object.load(self.programs[render_object.mapped_object.program_id], self.textures[render_object.mapped_object.texture_id],self.geoemtries[render_object.mapped_object.geometry_id])
+        if render_object.mapped_object.id not in self.render_map:
+            render_object.load(self.programs[render_object.mapped_object.program_id], self.textures[render_object.mapped_object.texture_id],self.geoemtries[render_object.mapped_object.geometry_id])
         self.render_map[render_object.mapped_object.id] = render_object
         self.render_array.append(render_object.mapped_object.id)
 
     def render(self):
         self.clock.tick()
+
+        self.ctx.clear()
+
+        self.ctx.enable(self.ctx.DEPTH_TEST)
+        
+        self.programs[0]['camera'].write(self.camera_matrix())
+
         self.load_render_queue()
+
         for id in self.render_array:
             self.render_map[id].render()
 
-
-        self.handleOverlay()
-        self.ctx.clear(
-            self.clear_colors[0],
-            self.clear_colors[1], 
-            self.clear_colors[2], 
-            self.clear_colors[3], 
-            self.clear_colors[4]
-        )
         self.ctx.screen.use()
-        self.overlay.render()
-            
-    def handleOverlay(self):
-        pygame.event.set_grab(self.logic_scene.grabMouse)
-        self.logic_scene.handleAudioData()
-        if len(self.logic_scene.lastAudioData) > 0:
-            self.overlay.handleAudioData(self.logic_scene.lastAudioData)
-        self.logic_scene.fillActionMap()
-        if not self.logic_scene.grabMouse:
-            for key, value in self.logic_scene.actionMap.items():
-                if not value == False:
-                    if key == 'last_click' :
-                        self.overlay.click(value)
-                    elif self.overlay.hasFocus():
-                        self.overlay.handleKey(value)
-
-                    self.logic_scene.actionMap[key] = False
-

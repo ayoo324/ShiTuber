@@ -10,4 +10,4 @@ class Renderable(LogicRenderable):
         self.is_loaded = True
 
     def render(self):
-        return self.mesh.render((self.mapped_object.x, self.mapped_object.y, self.mapped_object.z), (self.mapped_object.r, self.mapped_object.g, self.mapped_object.b), self.mapped_object.scale)
+        return self.mesh.render((self.mapped_object.x, self.mapped_object.z, self.mapped_object.y), (self.mapped_object.r, self.mapped_object.g, self.mapped_object.b), self.mapped_object.scale)

@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 uniform mat4 camera;
 uniform vec3 position;

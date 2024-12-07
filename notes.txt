@@ -1,0 +1,5 @@
+Make a "command buffer" => manager queue to queue up actions
+actions => range of motion to interpolate and starting positions
+
+every x frames, clear command buffer
+and merge scene with logical scene

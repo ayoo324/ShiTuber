@@ -9,3 +9,6 @@ class LogicRenderable():
         self.mapped_object.x = x
         self.mapped_object.y = y
         self.mapped_object.z = z
+
+    def set_render_id(self, render_id):
+        self.mapped_object.id = render_id

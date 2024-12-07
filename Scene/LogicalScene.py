@@ -1,30 +1,33 @@
 import pygame
 from Renderable.Renderable import Renderable
+from Helpers.database import db
 class LogicalScene:
     displayables = {}
     actionMap = {}
-    audioBuffer = []
+    audio_buffer = []
     grabMouse = False
     focus = None
-    lastAudioData = []
+    lastAudioData = None
     input_queue = None
-    render_map = None
     render_queue = None
+    transformedEvents = []
     def setInputQueue(self, input_queue):
         self.input_queue = input_queue
-    def setRenderMap(self, render_map):
-        self.render_map = render_map
     def setRenderQueue(self, render_queue):
         self.render_queue = render_queue
+    def setAudioBuffer(self, audio_buffer):
+        self.audio_buffer = audio_buffer
 
-    def submitToRenderQueue(self, mapped_object:Renderable):
-        self.render_queue.put(mapped_object)
+    def submitToRenderQueue(self, renderable:Renderable):
+        db.insert_renderable(renderable)
+        self.render_queue.put(renderable.mapped_object)
     
     def addDisplayableToScene(self, displayable):
         self.displayables[displayable.uuid] = displayable
 
     def addAudioData(self, data):
-        self.audioBuffer.append(data)
+        if self.audio_buffer is not None:
+            self.audio_buffer.put(data)
 
     def tick(self):
         self.handleDownKeys()
@@ -49,23 +52,20 @@ class LogicalScene:
 
 
     def handleAudioData(self):
-        if len(self.audioBuffer) > 0:
-            self.lastAudioData = self.audioBuffer.pop(0)
-            self.audioBuffer = self.audioBuffer[:5]
+        if self.audio_buffer is None or self.audio_buffer.empty():
+            return
+        self.lastAudioData = self.audio_buffer.get()
 
-    def addToInputEventQueue(self, events):
-        transformedEvents = []
-        for event in events:
-            if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return True
-            else:
-                if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-                    transformedEvents.append({'type': event.type, 'key': event.key, 'unicode': event.unicode})
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    transformedEvents.append({'type': event.type, 'pos': pygame.mouse.get_pos()})
-        self.input_queue.put(transformedEvents)
+    def addToInputEventQueue(self, event):
+        self.transformedEvents = []
+        if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+            self.transformedEvents.append({'type': event.type, 'key': event.key, 'unicode': event.unicode})
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.transformedEvents.append({'type': event.type, 'pos': pygame.mouse.get_pos()})
         return False
+    def publishEventQueue(self):
+        if len(self.transformedEvents) > 0:
+            self.input_queue.put(self.transformedEvents)
     
     def handleEvents(self, events):
         for event in events:
