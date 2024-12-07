@@ -1,5 +1,5 @@
 
-CHUNK = 4  # Samples: 1024,  512, 256, 128 frames per buffer
-RATES = [38000, 44000, 64000] 
+CHUNK = 512  # Samples: 1024,  512, 256, 128 frames per buffer
+RATE = 48000
 CHANNELS = 1
 AUDIO_THRESHOLD = 150

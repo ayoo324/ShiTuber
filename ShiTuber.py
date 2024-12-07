@@ -1,13 +1,11 @@
 from Scene.Scene import Scene
 from Scene.LogicalScene import LogicalScene
 import os
-from multiprocessing import Manager, Process
+from multiprocessing import Manager, Process, Value
 from queue import Full
-import numpy as np 
 import pygame
-from AudioSettings import *
-import pyaudio
 from GameLoop import runGameLoop
+import traceback
 def renderLoop(scene):
     while True:     
         try:
@@ -27,7 +25,7 @@ def renderLoop(scene):
         except Full:
             print('falling behind input queue, inputs lost')
         except Exception as e:
-            print(e)
+            print(traceback.format_exc())
 
 if __name__ == '__main__':
     with Manager() as manager:
@@ -36,33 +34,19 @@ if __name__ == '__main__':
         shared_dictionary['scene'] = logic_scene
         input_queue = manager.Queue(100)
         render_queue = manager.Queue(100)
-        audio_buffer = manager.Queue(100)
+        audio_buffer = Value('f', 0.0)
         logic_scene.setInputQueue(input_queue)
         logic_scene.setRenderQueue(render_queue)
         logic_scene.setAudioBuffer(audio_buffer)
         
-        # def audio_callback(in_data, frame_count, time_info, status):
-        #     data = np.frombuffer(in_data, dtype=np.int16)
-        #     logic_scene.addAudioData(data)
-        #     return (in_data, pyaudio.paContinue)
 
-        # p = pyaudio.PyAudio()
 
-        # streams = [p.open(format=pyaudio.paInt16,
-        #                 channels=CHANNELS,
-        #                 rate=rate,
-        #                 input=True,
-        #                 frames_per_buffer=CHUNK,
-        #                 stream_callback=audio_callback) for rate in RATES
-        #             ]
         
         p = Process(target=runGameLoop, args=(shared_dictionary, input_queue, render_queue, audio_buffer))
 
         os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
 
 
-        # for stream in streams:
-        #     stream.start_stream()
         p.start()
         pygame.init()
         pygame.display.set_mode((1600, 900), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)

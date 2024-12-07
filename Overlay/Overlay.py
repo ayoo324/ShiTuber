@@ -1,5 +1,6 @@
-from Overlay.DOM import DOM
-from Overlay.Components import Picture, Rectangle
+from Overlay.DOMRenderer import DOMRenderer
+from Overlay.LogicOverlay import LogicOverlay
+from Overlay.Components import Picture, Rectangle, TextDisplay
 import random
 import time
 from AudioSettings import *
@@ -8,61 +9,52 @@ MAX_MOVEMENT_Y = 40
 flipCooldown = 0.15
 class Overlay:
     def __init__(self):
-        self.dom = DOM()
+        self.logic_overlay = LogicOverlay()
+        self.domRenderer = DOMRenderer()
+        self.logic_overlay.setDOM(self.domRenderer.dom)
 
-        self.base = Picture((700, 690), (219, 201), "Images/base.png")
-        self.base.label = 'Base'
-        self.dom.addComponent(self.base)
-        for component in self.base.getDebugInputs( (0, 0) ):
-            self.dom.addComponent(component)
-        self.head = Picture((760, 640), (80, 50), "Images/head.png")
-        self.head.label = 'Head'
-        self.head.speed = (3, 3, 5, 5)
-        self.head.decay = (0, 0)
-        self.head.max_pos = (740, 780, 340, 640)
-        self.head.max_velocity = (10, 5)
-        self.dom.addComponent(self.head)
-        for component in self.head.getDebugInputs( (250, 0) ):
-            self.dom.addComponent(component)
+        # self.base = Picture((700, 690), (219, 201), "Images/base.png")
+        # self.base.label = 'Base'
+        # self.domRenderer.addComponent(self.base)
+        # for component in self.base.getDebugInputs( (0, 0) ):
+        #     self.domRenderer.addComponent(component)
+        # self.head = Picture((760, 640), (80, 50), "Images/head.png")
+        # self.head.label = 'Head'
+        # self.head.base.speed_l = 3
+        # self.head.base.speed_r = 3
+        # self.head.base.speed_u = 5
+        # self.head.base.speed_d = 5
+        # self.head.base.decay_x = 0
+        # self.head.base.decay_y = 0
+        # self.head.base.max_l = 740
+        # self.head.base.max_r = 780
+        # self.head.base.max_u = 340
+        # self.head.base.max_d = 640
+        # self.head.base.max_velocity_x = 10
+        # self.head.base.max_velocity_y = 5
+        # self.domRenderer.addComponent(self.head)
+        # for component in self.head.getDebugInputs( (250, 0) ):
+        #     self.domRenderer.addComponent(component)
+
+        self.audio_level = TextDisplay('Audio', (0, 0), (250, 80))
+        self.domRenderer.addComponent(self.audio_level)
+
+        self.time_since_last_frame = TextDisplay('MS', (0, 80), (250, 80))
+        self.domRenderer.addComponent(self.time_since_last_frame)
+
+        self.audio_bar = Rectangle('Audio Levels', (0, 260), (40, 10))
+        self.domRenderer.addComponent(self.audio_bar)
+
 
     def render(self):
-        self.dom.render()
+        self.domRenderer.render()
 
     def click(self, coordinates):
         (x, y) = coordinates
-        self.dom.click(x, y)
+        self.domRenderer.click(x, y)
 
     def hasFocus(self):
-        return not self.dom.focus == None
+        return not self.domRenderer.focus == None
 
     def handleKey(self, key):
-        self.dom.focus.press(key)
-
-
-    sign = -1
-    last_average_of_data = 0
-    max_average_crawl = 10
-    lastFlipTime = time.time()
-    def handleAudioData(self, data):
-        average_of_data = int(abs(sum(data) / CHUNK))
-
-        if average_of_data > AUDIO_THRESHOLD:
-            if self.last_average_of_data > average_of_data:
-                self.head.up()
-                if self.sign >= 0:
-                    self.head.right()
-                else:
-                    self.head.left()
-            elif self.last_average_of_data < average_of_data:
-                self.head.down()
-                self.head.center()
-
-            now = time.time()
-            if self.lastFlipTime + flipCooldown < now:
-                self.lastFlipTime = now
-                if random.randint(0, 3) == 1:
-                    self.sign = self.sign * -1
-        else:
-            self.head.down()
-            self.head.center()
-        self.last_average_of_data = max(self.last_average_of_data + self.max_average_crawl, average_of_data)
+        self.domRenderer.focus.press(key)

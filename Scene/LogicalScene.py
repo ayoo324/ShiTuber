@@ -1,6 +1,7 @@
 import pygame
 from Renderable.Renderable import Renderable
 from Helpers.database import db
+from multiprocessing import Value
 import random
 class LogicalScene:
     render_objects = {}
@@ -16,24 +17,21 @@ class LogicalScene:
         self.input_queue = input_queue
     def setRenderQueue(self, render_queue):
         self.render_queue = render_queue
-    def setAudioBuffer(self, audio_buffer):
-        self.audio_buffer = audio_buffer
+    def setAudioBuffer(self, lastAudioData):
+        self.lastAudioData = lastAudioData
 
     def submitToRenderQueue(self, renderable:Renderable):
         db.insert_renderable(renderable)
         self.render_objects[renderable.mapped_object.id] = renderable
         self.render_queue.put(renderable.mapped_object)
 
-    def addAudioData(self, data):
-        if self.audio_buffer is not None:
-            self.audio_buffer.put(data)
+    def setAudioData(self, data):
+        with self.lastAudioData.get_lock():
+            self.lastAudioData.value = data
 
     def tick(self):
         self.handleDownKeys()
         self.handleMouseMovement()
-        for render_object in self.render_objects.values():
-            render_object.move_to(random.random(),0,0)
-            self.render_queue.put(render_object.mapped_object)
 
     def handleDownKeys(self):
         if self.grabMouse:
@@ -51,12 +49,6 @@ class LogicalScene:
     def handleMouseMovement(self):
         if self.grabMouse:
             pygame.mouse.set_pos(tuple(element / 2 for element in pygame.display.get_window_size()))
-
-
-    def handleAudioData(self):
-        if self.audio_buffer is None or self.audio_buffer.empty():
-            return
-        self.lastAudioData = self.audio_buffer.get()
 
     def addToInputEventQueue(self, event):
         self.transformedEvents = []
