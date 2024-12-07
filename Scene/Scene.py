@@ -47,8 +47,10 @@ class Scene:
     def load(self, render_object):
         if render_object.mapped_object.id not in self.render_map:
             render_object.load(self.programs[render_object.mapped_object.program_id], self.textures[render_object.mapped_object.texture_id],self.geoemtries[render_object.mapped_object.geometry_id])
-        self.render_map[render_object.mapped_object.id] = render_object
-        self.render_array.append(render_object.mapped_object.id)
+            self.render_map[render_object.mapped_object.id] = render_object
+            self.render_array.append(render_object.mapped_object.id)
+        else:
+            self.render_map[render_object.mapped_object.id].mapped_object = render_object.mapped_object
 
     def render(self):
         self.clock.tick()

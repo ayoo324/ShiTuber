@@ -1,8 +1,9 @@
 import pygame
 from Renderable.Renderable import Renderable
 from Helpers.database import db
+import random
 class LogicalScene:
-    displayables = {}
+    render_objects = {}
     actionMap = {}
     audio_buffer = []
     grabMouse = False
@@ -20,10 +21,8 @@ class LogicalScene:
 
     def submitToRenderQueue(self, renderable:Renderable):
         db.insert_renderable(renderable)
+        self.render_objects[renderable.mapped_object.id] = renderable
         self.render_queue.put(renderable.mapped_object)
-    
-    def addDisplayableToScene(self, displayable):
-        self.displayables[displayable.uuid] = displayable
 
     def addAudioData(self, data):
         if self.audio_buffer is not None:
@@ -32,6 +31,9 @@ class LogicalScene:
     def tick(self):
         self.handleDownKeys()
         self.handleMouseMovement()
+        for render_object in self.render_objects.values():
+            render_object.move_to(random.random(),0,0)
+            self.render_queue.put(render_object.mapped_object)
 
     def handleDownKeys(self):
         if self.grabMouse:
