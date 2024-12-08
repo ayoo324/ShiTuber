@@ -60,8 +60,7 @@ class Scene:
     threshold = 1200
     def render(self):
         self.load_render_queue()
-
-        self.ctx.clear()
+        self.ctx.clear(0.4, 0.2, 0.2, 1.0)
 
         self.ctx.enable(self.ctx.DEPTH_TEST)
         audio_data = self.logic_scene.lastAudioData.value
