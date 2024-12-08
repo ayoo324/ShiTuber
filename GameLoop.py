@@ -12,17 +12,17 @@ def runGameLoop(managed_dictionary, input_queue, render_queue, audio_buffer):
     scene.setInputQueue(input_queue)
     scene.setRenderQueue(render_queue)
     scene.setAudioBuffer(audio_buffer)
-    base = Renderable(
+    head = Renderable(
             MappedObject(
-                position=(0.0, 0.0, 0.0),
-                scale=0.3,
+                position=(0.0, 0.0, 0.05),
+                scale=0.2,
                 geometry_id=0,
                 texture_id=0,
                 program_id=0,
                 color=(1.0, 1.0, 1.0)
             )
         )
-    head = Renderable(
+    body = Renderable(
             MappedObject(
                 position=(0.0, 0.0, 0.3),
                 scale=0.3,
@@ -58,7 +58,7 @@ def runGameLoop(managed_dictionary, input_queue, render_queue, audio_buffer):
     stream.start_stream()
 
     scene.submitToRenderQueue(
-        base
+        body
     )
     scene.submitToRenderQueue(
         head
