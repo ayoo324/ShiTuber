@@ -13,7 +13,7 @@ out vec3 v_vertex;
 out vec3 v_normal;
 out vec2 v_uv;
 
-float threshold = 1200;
+float threshold = 900;
 float max_audio = 150000;
 float max_x = 1;
 float max_y = 1;
@@ -28,7 +28,7 @@ void main() {
     }
     if(resolved_audio > threshold){
         float x_move = min((max_x),  ((resolved_audio - max_audio) / (max_audio - threshold)) + max_x);
-        float y_move = min((max_y),  ((resolved_audio - max_audio) / (max_audio - threshold)) + max_y);
+        float y_move = min((max_y),  (((resolved_audio - max_audio) / (max_audio - threshold)) + max_y) * 2.4);
         v_vertex.x = v_vertex.x + x_move;
         v_vertex.y = v_vertex.y - y_move;
     }
