@@ -16,10 +16,6 @@ def renderLoop(scene):
                 scene.logic_scene.addToInputEventQueue(event)
                 
             scene.logic_scene.publishEventQueue()
-                # events.append(event)
-            # result = scene.logic_scene.addToInputEventQueue(events)
-            # if result:
-            #     return result
             scene.render()
             pygame.display.flip()
         except Full:
@@ -39,13 +35,9 @@ if __name__ == '__main__':
         logic_scene.setRenderQueue(render_queue)
         logic_scene.setAudioBuffer(audio_buffer)
         
-
-
-        
         p = Process(target=runGameLoop, args=(shared_dictionary, input_queue, render_queue, audio_buffer))
 
         os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
-
 
         p.start()
         pygame.init()
